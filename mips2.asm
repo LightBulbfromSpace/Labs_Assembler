@@ -1,6 +1,6 @@
 	.data
-A:	.word 2
-B:	.word 23
+A:	.word -27
+B:	.word -23
 C:	.word 7
 D:	.word 2
 
