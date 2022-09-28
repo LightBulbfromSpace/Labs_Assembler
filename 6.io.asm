@@ -1,25 +1,33 @@
 	.data
-msg:    .asciiz "Some message\n"
-num:	.word   1111
+	
+msg1:   .asciiz "Write some number:\n"
+msg2:	.asciiz "Your number:\n"
+num:	.word   1
 
 	.text
 	.globl main
 	
-main:	lw $a0, num
-	li $v0, 1
-	syscall
-	
-	li $a0, '\n'
+main:	li $a0, '\n'
 	li $v0, 11
 	syscall
 	
-	la $a0, msg
+	la $a0, msg1
 	li $v0, 4
 	syscall
 	
-	li $a0, '.'
-	li $v0, 11
+	li $v0, 5
 	syscall
+	
+	move $t0, $v0
+	
+	la $a0, msg2
+	li $v0, 4
+	syscall
+	
+	move $a0, $t0
+	li $v0, 1
+	syscall
+	
 	
 	li $v0, 10
 	syscall
