@@ -2,7 +2,6 @@
 	
 msg1:   .asciiz "Write some number:\n"
 msg2:	.asciiz "Your number:\n"
-num:	.word   1
 
 	.text
 	.globl main
