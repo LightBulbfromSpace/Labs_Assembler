@@ -31,17 +31,17 @@ nums_read:
  	j    nums_read
 end_nums_read:
  
- 	la      $s0,  nums
+ 	la    $s0,  nums
  	
- 	l.s     $f0, ($s0)
- 	l.s     $f1, 4($s0)
- 	sub.s   $f2,  $f0, $f1
- 	l.s     $f0, 8($s0)
- 	l.s     $f1, 12($s0)
- 	add.s   $f3,  $f0, $f1
- 	div.s   $f0,  $f2, $f3
- 	l.s     $f1, 16($s0)
- 	sub.s   $f12, $f0, $f1 
+ 	l.s   $f0, ($s0)
+ 	l.s   $f1, 4($s0)
+ 	sub.s $f2,  $f0, $f1
+ 	l.s   $f0, 8($s0)
+ 	l.s   $f1, 12($s0)
+ 	add.s $f3,  $f0, $f1
+ 	div.s $f0,  $f2, $f3
+ 	l.s   $f1, 16($s0)
+ 	sub.s $f12, $f0, $f1 
  
  	li    $v0,  2
  	syscall
