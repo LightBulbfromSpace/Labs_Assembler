@@ -1,3 +1,99 @@
+.macro done
+	li   $v0, 10
+	syscall
+.end_macro
+
+	# disjunctive normal form
+.macro DNF(%result_dnf, %counter_r, %size_r, %result_comp_r, %user_input_addr_r, %m_addr_r, %mask, %y_output, %fr_r1, %fr_r2)										
+	li   %result_dnf, 0
+	la   %m_addr_r, %mask
+	la   %user_input_addr_r, input
+	
+	comparation_mask(%counter_r, %size_r, %result_comp_r, %user_input_addr_r, %m_addr_r, %fr_r1, %fr_r2)
+	
+	or   %result_dnf, %result_dnf, %result_comp_r
+	
+	beq  %result_dnf, 1, %y_output
+.end_macro
+
+.macro print_char(%char)
+	li   $a0, %char
+	li   $v0, 11
+	syscall
+.end_macro
+
+.macro print_str(%str)
+	la   $a0, %str
+	li   $v0, 4
+	syscall
+.end_macro
+
+.macro print_int_r(%int_r)
+	move $a0, %int_r
+	li   $v0, 1
+	syscall
+.end_macro
+
+.macro y_out(%y_str, %result_r)
+	print_str(%y_str)
+	print_int_r(%result_r)
+	print_char(10)
+.end_macro
+
+.macro read_int_to_arr_loop(%counter_r, %size_r, %destination_addr_r)
+	
+	la   %destination_addr_r, input
+	move %counter_r, $zero 
+	
+	read_loop:
+	li   $v0, 5
+	syscall
+	
+	bltz $v0, err_wrong_input
+	bgt  $v0, 1, err_wrong_input
+	
+	sb   $v0, (%destination_addr_r)
+	
+	la   %destination_addr_r, 1(%destination_addr_r)
+	add  %counter_r, %counter_r, 1
+
+	blt  %counter_r, %size_r, read_loop
+.end_macro
+
+.macro comparation_mask(%counter_r, %size_r, %result_r, %user_input_addr, %mask_addr, %free_r1, %free_r2)
+	li   %result_r, 1
+	li   %counter_r, 0
+start_comparation_mask:
+	beq  %counter_r, %size_r, end_comparation_mask
+	lb   %free_r1, (%user_input_addr)
+	lb   %free_r2, (%mask_addr)
+	add  %counter_r, %counter_r, 1
+	la   %user_input_addr, 1(%user_input_addr)
+	la   %mask_addr, 1(%mask_addr)
+	beq  %free_r1, %free_r2, start_comparation_mask
+	li   %result_r, 0
+end_comparation_mask:
+
+.end_macro
+
+.macro question(%got_answer_r, %buffer_addr)
+	print_str(prmpt2)
+	
+	la   $a0, %buffer_addr
+	li   $a1, 2
+	li   $v0, 8
+	syscall
+	
+	lb   %got_answer_r, %buffer_addr
+.end_macro
+	
+	.ktext 0x80000180
+	
+   	mfc0 $k0,$14      		# Coprocessor 0 register $14 has address of trapping instruction
+   	addi $k0,$k0, 4   		# Add 4 to point to next instruction
+  	mtc0 $k0,$14      		# Store new address back into $14
+   	eret
+   	
 	.data
 
 prmpt1:	.asciiz "\nType 7 zeros or units:\n"
@@ -18,147 +114,45 @@ y3:	.asciiz "y3: "
 	.globl main
 main:
 	lb   $s0, size
-loop:	
-	la   $s1, input
-	li   $t1, 0
+main_loop:						
 
-	la   $a0, prmpt1
-	li   $v0, 4
-	syscall
+	print_str(prmpt1)
 	
-	read:
-	beq  $s0, $t1, end_read
-	
-	li   $v0, 5
-	syscall
-	
-	blt  $v0, 0, err_wrong_input
-	bgt  $v0, 1, err_wrong_input
-	
-	sb   $v0, ($s1)
-	
-	la   $s1, 1($s1)
-	add  $t1, $t1, 1
-	
-	j    read
-	end_read:
-	
-	li   $t4, 0			# result of DNF
-	
-	la   $s2, mask1			# $s2 - register for mask's address
-	jal  DNF
-	beq  $t4, 1, y1_output
-	
-	la   $s2, mask2
-	jal  DNF
-	beq  $t4, 1, y1_output
-	
-	la   $s2, mask3
-	jal  DNF
-	beq  $t4, 1, y1_output
-	
-	la   $s2, mask4
-	jal  DNF
+	# %counter_r, %size_r, %destination_adr_r
+	read_int_to_arr_loop($t1, $s0, $s1)
+				
+	# %counter_r, %size_r, %result_comp_r, %user_input_addr_r, %mask, %mask_addr_r, %y_output
+	DNF($t4, $t1, $s0, $t0, $s1, $s2, mask1, y1_output, $t2, $t3)
+	DNF($t4, $t1, $s0, $t0, $s1, $s2, mask2, y1_output, $t2, $t3)
+	DNF($t4, $t1, $s0, $t0, $s1, $s2, mask3, y1_output, $t2, $t3)
+	DNF($t4, $t1, $s0, $t0, $s1, $s2, mask4, y1_output, $t2, $t3)
 	
 y1_output:
 
-	li   $a0, 10
-	li   $v0, 11
-	syscall
+	print_char(10)
 	
-	la   $a0, y1
-	jal  y_out
+	y_out(y1, $t4)
 	
-	li   $t4, 0
-	
-	la   $s2, mask2
-	jal  DNF
-	beq  $t4, 1, y2_output
-	
-	la   $s2, mask3
-	jal  DNF
+	DNF($t4, $t1, $s0, $t0, $s1, $s2, mask2, y2_output, $t2, $t3)
+	DNF($t4, $t1, $s0, $t0, $s1, $s2, mask3, y2_output, $t2, $t3)
 	
 y2_output:
-	la   $a0, y2
-	jal  y_out
+	y_out(y2, $t4)
 	
-	li   $t4, 0
-	
-	la   $s2, mask1
-	jal  DNF
-	beq  $t4, 1, y2_output
-	
-	la   $s2, mask3
-	jal  DNF
+	DNF($t4, $t1, $s0, $t0, $s1, $s2, mask1, y3_output, $t2, $t3)
+	DNF($t4, $t1, $s0, $t0, $s1, $s2, mask3, y3_output, $t2, $t3)
 	
 y3_output:
-	la   $a0, y3
-	jal  y_out
+	y_out(y3, $t4)
+
+q_and_choice:
+	question($a0, buffer)
+	beq  $a0, 121, main_loop
 	
-question:	
-	la   $a0, prmpt2
-	li   $v0, 4
-	syscall
-	
-	la   $a0, buffer
-	li   $a1, 2
-	li   $v0, 8
-	syscall
-	
-	lb   $a0, buffer
-	beq  $a0, 121, loop
-	
-	li   $v0, 10
-	syscall
-	
+	done
+
+
 err_wrong_input:
 
-	la   $a0, err_in
-	li   $v0, 4
-	syscall
-
-	j    question
-end_err_wrong_input:
-	
-y_out:
-	li   $v0, 4			# address of string should be already loaded
-	syscall
-	
-	move $a0, $t4
-	li   $v0, 1
-	syscall
-	
-	li   $a0, 10
-	li   $v0, 11
-	syscall
-	jr   $ra
-y_out_end:
-	
-DNF:					# disjunctive normal form
-	move $s3, $ra
-	li   $t0, 1			# result of comparation with mask
-	la   $s1, input
-	
-	jal  comparation_mask
-	
-	or   $t4, $t4, $t0
-	
-	jr   $s3
-end_DNF:
-
-comparation_mask:
-	li   $t1, 0			# counter
-	start_comparation_mask:
-	beq  $s0, $t1, end_comparation_mask
-	lb   $t2, ($s1)
-	lb   $t3, ($s2)
-	
-	add  $t1, $t1, 1
-	la   $s1, 1($s1)
-	la   $s2, 1($s2)
-	
-	beq  $t3, $t2, start_comparation_mask
-	li   $t0, 0  
-end_comparation_mask:
-	
-	jr   $ra
+	print_str(err_in)
+	j    q_and_choice
