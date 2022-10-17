@@ -4,7 +4,7 @@
 .end_macro
 
 	# disjunctive normal form
-.macro DNF(%result_dnf, %counter_r, %size_r, %result_comp_r, %user_input_addr_r, %m_addr_r, %mask, %y_output, %fr_r1, %fr_r2)										
+.macro DNF(%result_dnf, %counter_r, %size_r, %result_comp_r, %user_input_addr_r, %m_addr_r, %mask, %y_output, %fr_r1, %fr_r2)
 	li   %result_dnf, 0
 	la   %m_addr_r, %mask
 	la   %user_input_addr_r, input
