@@ -60,6 +60,7 @@
    	la   $k0, done
    	mtc0 $k0, $14
    	eret
+	
    	.kdata
 msg:	.asciiz "Wrong input"
    	
