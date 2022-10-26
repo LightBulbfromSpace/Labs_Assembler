@@ -35,18 +35,21 @@
 	lw   $t0, (%stack_last_addr_r)
 .end_macro
 
-.macro new_line
+.macro print_num_from_reg_ln(%r)
+	move $a0, %r
+	li   $v0, 1
+	syscall
+	
 	li $a0, 10
 	li $v0, 11
 	syscall
 .end_macro
 
-.macro print_num_from_reg_ln(%r)
-	move $a0, %r
-	li $v0, 1
+.macro read_num(%dest)
+	li   $v0, 5
 	syscall
 	
-	new_line
+	move %dest, $v0
 .end_macro
 	
 	.data
@@ -60,10 +63,11 @@ stack:	.space 256
 	
 	push_in_stack($s0, stack)
 	
-	li $t1, 19
-	li $t4, 16
-	li $t7, 49
-	li $t0, 63
+	read_num($t0)
+	read_num($t1)
+	read_num($t2)
+	read_num($t4)
+	read_num($t7)
 	
 	pop_stack($s0, stack)
 	
