@@ -52,6 +52,17 @@
 	move %dest, $v0
 .end_macro
 	
+	.ktext 0x80000180
+   	la   $a0, msg
+   	li   $v0, 4
+   	syscall
+   
+   	la   $k0, done
+   	mtc0 $k0, $14
+   	eret
+   	.kdata
+msg:	.asciiz "Wrong input"
+   	
 	.data
 stack:	.space 256
 
@@ -79,6 +90,7 @@ stack:	.space 256
 	print_num_from_reg_ln($t5)
 	print_num_from_reg_ln($t6)
 	print_num_from_reg_ln($t7)
-	
+
+done:
 	li $v0, 10
 	syscall
