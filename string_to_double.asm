@@ -29,7 +29,7 @@
 str:	.byte 45, 49, 50, 51, 46, 52, 53, 54, 55
  
 	.text
-	li      $t0, 8			  # counter
+	li      $t0, 9			  # counter
 	la      $t1, str
 	li      $t2, 1
 	mtc1    $t2, $f2
@@ -45,6 +45,7 @@ str:	.byte 45, 49, 50, 51, 46, 52, 53, 54, 55
 	li      $t2, -1
 	mtc1    $t2, $f2
 	cvt.d.w $f2, $f2
+	subi   $t0, $t0, 1
 	
 convertion:				  # $f0-$f1 result register, $t0 - service register,
 					  # $t4 - fractional part flag register (0 - int part, non-zero - fr. part)
