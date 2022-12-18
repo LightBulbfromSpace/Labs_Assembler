@@ -52,11 +52,12 @@
 
 	.data
 f_in:   .asciiz "data/calc.dat"		  # Directory 'data' should be created before start of the program
+f_out:  .asciiz "data/calc_out.dat"	  # Directory 'data' should be created before start of the program
 					  # or name'd be changed to "calc.dat".
 err_op: .asciiz "Error: cannot open file"
 err_in: .asciiz "Error: wrong input." 
 ch_buf:	.byte   0			  # buffer used to extract char
-n_buf:  .space	1024			  # buffer used to store result of calculation
+n_buf:  .double	0			  # buffer used to store result of calculation
 
 	.ktext 0x80000180
  	print_str(err_in)
@@ -110,14 +111,7 @@ file_io_calc:
 	li   $v0, 16			  # close file
 	syscall				  #
 	
-	#la   $a0, f_in
-	#li   $a1, 1			  # flag: write-only and create
-	#li   $a2, 0
-	#li   $v0, 13
-	#syscall
-	
 	print_double
-	
 					  
 end_nums_writing:			  
 	done
@@ -127,7 +121,7 @@ err_open_file:				  #
 	done				  #
 
 
-# start of code for convertion
+# start of code for string to double convertion
 convertion_start:
 	mul.d   $f12, $f12, $f14	  # $f14 should be equal to zero
 	li      $t2, 1
@@ -156,13 +150,23 @@ non_neg:
 	li      $t4, 1
 	j       convertion
 non_dot:
-	bnez   $t4, fr_part
+	bnez    $t4, fr_part
 	set_char_in_integer_part($t3, $f12, $f0, $f4)
 	j convertion
 fr_part:
 	set_char_in_fractional_part($t3, $f12, $f0, $f4, $f6)
 	j    convertion
 end_convertion:
-	mul.d $f12, $f2, $f12
-	jr   $ra
-#end of code for convertion
+	mul.d   $f12, $f2, $f12
+	jr      $ra
+# end of code for string to double convertion
+
+# start of code for double to string convertion
+dbl_to_str_conv_start:
+	li      $t0,  14
+	
+	
+dbl_to_str_conv_end:
+# end of code for double to string convertion
+
+
