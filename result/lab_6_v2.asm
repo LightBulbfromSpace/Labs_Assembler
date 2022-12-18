@@ -24,13 +24,13 @@
 .end_macro
 
 	.text
-	li $t0, 13
-	li $t1, 17
-	push_in_stack($t0)
-	push_in_stack($t1)
+	li $a0, 13
+	li $a1, 17
+	push_in_stack($a0)
+	push_in_stack($a1)
 	jal bar
-	lw $t1, ($sp)
-	lw $t0, 4($sp)
+	lw $a1, ($sp)
+	lw $a0, 4($sp)
 	push_in_stack($v0)
 	jal foo
 	pop_stack($v0)
@@ -42,15 +42,15 @@
 	
 	done
 	
-foo:				# prints result of (2 * $t0 + $t1 * $t1), function type: void
-	add $t0, $t0, $t0
-	mul $t1, $t1, $t1
-	add $a0, $t0, $t1
+foo:				# prints result of (2 * $a0 + $a1 * $a1), function type: void
+	add $a0, $a0, $a0
+	mul $a1, $a1, $a1
+	add $a0, $a0, $a1
 	print_int_nl($a0)
 	jr $ra
 	
-bar:				# returns result of ($t0 * $t0 - $t1 * $t1), function type: int
-	mul $t1, $t1, $t1
-	mul $t0, $t0, $t0
-	sub $v0, $t0, $t1
+bar:				# returns result of ($a0 * $t0 - $a1 * $a1), function type: int
+	mul $a1, $a1, $a1
+	mul $a0, $a0, $a0
+	sub $v0, $a0, $a1
 	jr  $ra
