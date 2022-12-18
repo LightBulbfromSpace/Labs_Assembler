@@ -36,11 +36,16 @@ prt_C:  .asciiz "C: "
 prt_r1: .asciiz "\nFirst root:\n"
 prt_r2: .asciiz "\nSecond root:\n"
 n_prpt: .asciiz "\nNo real roots."
+l_prpt: .asciiz "\nError: Linear equation."
 
 	.text
 	print_str(prmpt)
 	print_str(prt_A)
 	read_double($f2)	 # A
+	mtc1.d 	$0,  $f4
+	cvt.d.w $f4, $f4
+	c.eq.d	$f2, $f4	 # $f4 
+	bc1t lin_eq
 	print_str(prt_B)
 	read_double($f4)	 # B
 	print_str(prt_C)
@@ -85,4 +90,7 @@ _neg:
 	print_str(n_prpt)
 done:
 	li      $v0, 10
-	syscall	
+	syscall
+lin_eq:
+	print_str(l_prpt)
+	j 	done
